@@ -1,0 +1,54 @@
+# OfficeLab, office A (P2 week 1): r1, r2, edge-a, pc1, guest1 and srv1.
+#
+# Wiring only: nodes, images and links. No addresses, routes, NAT, DHCP or firewall:
+# you add those in the P2 tasks. Addresses are in README.md.
+#
+# In the Containerlab terminal, from this folder:
+#   containerlab deploy -t office-a.clab.yml --reconfigure
+#   containerlab destroy -t office-a.clab.yml --cleanup
+name: office-a
+
+mgmt:
+  network: clab                 # containerlab's management network
+  ipv4-subnet: 172.20.20.0/24   # edge routers reach the internet through 172.20.20.1 on eth0
+
+topology:
+  kinds:
+    frr:
+      image: officelab-router   # build it first: see setup/containerlab.md
+    linux:
+      image: wbitt/network-multitool:extra
+  nodes:
+    r1:
+      kind: frr
+      startup-config: configs/r1/frr.conf
+      # TODO(task 10): bind configs/r1/dnsmasq.conf to /etc/dnsmasq.conf and start dnsmasq with an exec line.
+      # TODO(task 17): bind configs/r1/nftables.conf to /etc/nftables.conf and load it.
+    r2:
+      kind: frr
+      startup-config: configs/r2/frr.conf
+      # TODO(task 17): bind configs/r2/nftables.conf to /etc/nftables.conf and load it.
+    edge-a:
+      kind: frr
+      startup-config: configs/edge-a/frr.conf
+      # TODO(task 9): bind configs/edge-a/nftables.conf to /etc/nftables.conf and load it with an exec line.
+      mgmt-ipv4: 172.20.20.11         # its uplink to the internet is eth0
+    pc1:
+      kind: linux                     # staff PC
+      exec:
+        - ip addr add 10.1.10.10/24 dev eth1
+        - ip route replace default via 10.1.10.1
+    guest1:
+      kind: linux                     # guest laptop
+      # TODO(task 7): exec lines with guest1's address and default route, like pc1's.
+    srv1:
+      kind: linux                     # server: nginx answers on port 80
+      # TODO(task 7): exec lines with srv1's address and default route.
+
+  links:
+    - endpoints: ["r1:eth1", "pc1:eth1"]         # staff LAN 10.1.10.0/24
+    - endpoints: ["r1:eth2", "guest1:eth1"]      # guest LAN 10.1.20.0/24
+    - endpoints: ["r1:eth3", "r2:eth3"]          # transit 10.1.255.0/30
+    - endpoints: ["r1:eth4", "edge-a:eth1"]      # transit 10.1.255.4/30
+    - endpoints: ["r2:eth1", "srv1:eth1"]        # server LAN 10.1.30.0/24
+    - endpoints: ["r2:eth2", "edge-a:eth2"]      # transit 10.1.255.8/30

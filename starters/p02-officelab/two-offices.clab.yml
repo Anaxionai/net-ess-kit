@@ -1,0 +1,53 @@
+# OfficeLab, two offices (P2 week 2): office A, plus edge-b and pc2 in office B.
+#
+# Wiring only: nodes, images and links. No addresses, routes, NAT, DHCP or firewall:
+# you add those in the P2 tasks. Addresses are in README.md.
+#
+# In the Containerlab terminal, from this folder:
+#   containerlab deploy -t two-offices.clab.yml --reconfigure
+#   containerlab destroy -t two-offices.clab.yml --cleanup
+name: two-offices
+
+mgmt:
+  network: clab                 # containerlab's management network
+  ipv4-subnet: 172.20.20.0/24   # edge routers reach the internet through 172.20.20.1 on eth0
+
+topology:
+  kinds:
+    frr:
+      image: officelab-router   # build it first: see setup/containerlab.md
+    linux:
+      image: wbitt/network-multitool:extra
+  nodes:
+    r1:
+      kind: frr
+      startup-config: configs/r1/frr.conf
+    r2:
+      kind: frr
+      startup-config: configs/r2/frr.conf
+    edge-a:
+      kind: frr
+      startup-config: configs/edge-a/frr.conf
+      mgmt-ipv4: 172.20.20.11         # its uplink to the internet is eth0
+    pc1:
+      kind: linux                     # staff PC
+    guest1:
+      kind: linux                     # guest laptop
+    srv1:
+      kind: linux                     # server: nginx answers on port 80
+    edge-b:
+      kind: frr
+      startup-config: configs/edge-b/frr.conf
+      mgmt-ipv4: 172.20.20.12         # its uplink to the internet is eth0
+    pc2:
+      kind: linux                     # office B's staff PC
+
+  links:
+    - endpoints: ["r1:eth1", "pc1:eth1"]         # staff LAN 10.1.10.0/24
+    - endpoints: ["r1:eth2", "guest1:eth1"]      # guest LAN 10.1.20.0/24
+    - endpoints: ["r1:eth3", "r2:eth3"]          # transit 10.1.255.0/30
+    - endpoints: ["r1:eth4", "edge-a:eth1"]      # transit 10.1.255.4/30
+    - endpoints: ["r2:eth1", "srv1:eth1"]        # server LAN 10.1.30.0/24
+    - endpoints: ["r2:eth2", "edge-a:eth2"]      # transit 10.1.255.8/30
+    - endpoints: ["edge-a:eth3", "edge-b:eth1"]  # the internet between the offices 198.51.100.0/30
+    - endpoints: ["edge-b:eth2", "pc2:eth1"]     # office B staff LAN 10.2.10.0/24

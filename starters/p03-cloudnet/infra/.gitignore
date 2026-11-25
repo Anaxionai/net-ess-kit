@@ -1,0 +1,6 @@
+# OpenTofu's downloads, state and plans: never commit them. State can hold secrets.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log

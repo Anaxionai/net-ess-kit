@@ -1,0 +1,14 @@
+# Check out every text file with LF line endings, on Windows too.
+# Shell scripts, topology files, nftables rules and configs then work in Git Bash and inside Linux containers.
+* text=auto eol=lf
+
+# Files that are not text: Git must never change their bytes.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.pcap binary
+*.pcapng binary
