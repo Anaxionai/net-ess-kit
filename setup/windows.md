@@ -5,6 +5,8 @@ P2 adds one more piece, the Containerlab distro ([`containerlab.md`](containerla
 
 The versions the course uses are in [`VERSIONS.md`](../VERSIONS.md).
 
+Which Launchpad task does which section: task 6 does section 1, task 9 installs Wireshark (section 7), task 11 does sections 2, 5 and 6, and task 12 does sections 3 and 4 and the `tshark` check at the end of section 7.
+
 ## Before you start
 
 - **Windows 11, version 23H2 or newer.** Press Windows+R, type `winver`, press Enter. Docker Desktop needs 23H2 (build 22631) or newer.
@@ -30,7 +32,11 @@ Every brief says which terminal a step uses. When in doubt: Git in Git Bash, Lin
 3. In VS Code, press Ctrl+Shift+P, run `Terminal: Select Default Profile`, and choose **Git Bash**.
 4. In Settings (Ctrl+,), search for `eol` and set **Files: Eol** to `\n`. Files you create then have LF line endings, which Linux, containers and routers need.
 
-Check it: open a terminal with Ctrl+`. The prompt shows `MINGW64`, and `git --version` prints `git version 2.` and more.
+Check it: open a new terminal (**Terminal**, then **New Terminal** in the top menu). The prompt shows `MINGW64`, and `git --version` prints `git version 2.` and more. In Git Bash, this prints the line-endings setting:
+
+```bash
+grep eol "$APPDATA/Code/User/settings.json"
+```
 
 ## 2. WSL 2 with Ubuntu (Launchpad task 11)
 
@@ -51,7 +57,7 @@ wsl -l -v
 
 `WSL version` is 2.4.4 or newer (run `wsl --update` if not), and `Ubuntu` shows `VERSION 2`.
 
-## 3. Limit WSL's memory (8 GB laptops: do this before any container)
+## 3. Limit WSL's memory (Launchpad task 12; 8 GB laptops: do this before any container)
 
 Ubuntu, Docker Desktop and (from P2) the Containerlab distro all run inside one WSL virtual machine. This limit keeps them to 4 GB, so Windows, VS Code and your browser keep enough.
 
@@ -71,7 +77,7 @@ cat ~/.wslconfig
 
 On a 16 GB laptop, use `memory=8GB` instead. Then, in PowerShell, `wsl --shutdown`, and wait 8 seconds before you start Docker Desktop.
 
-## 4. Docker Desktop, with Ubuntu's integration on (Launchpad task 11)
+## 4. Docker Desktop, with Ubuntu's integration on (Launchpad task 12)
 
 Docker Desktop runs containers on Windows, using WSL 2. It is free under the Personal plan for individual learning, and for small businesses with fewer than 250 employees and less than $10 million in yearly revenue.
 
@@ -106,15 +112,16 @@ ipcalc 192.168.1.10/24
 
 ## 6. The course kit (Launchpad task 11)
 
-Clone the kit into your **Linux** home folder, in the Ubuntu terminal, with the command in the kit's [`README.md`](../README.md). Then:
+Clone the kit into your **Linux** home folder, in the Ubuntu terminal (the same command is in the kit's [`README.md`](../README.md)). Then list it:
 
 ```bash
+git clone https://github.com/Anaxionai/net-ess-kit.git ~/net-ess-kit
 ls ~/net-ess-kit
 ```
 
 It lists `README.md`, `VERSIONS.md`, `setup`, `labs` and the other folders. Your course repository stays on drive C:, which Ubuntu sees as `/mnt/c` (for example `/mnt/c/Users/asha/net-ess-asha`).
 
-## 7. Wireshark and Npcap (Launchpad task 9)
+## 7. Wireshark and Npcap (Launchpad task 9; checked again in task 12)
 
 Wireshark shows packets. On Windows it captures through the **Npcap** driver, which the Wireshark installer installs for you.
 
@@ -124,7 +131,7 @@ Wireshark shows packets. On Windows it captures through the **Npcap** driver, wh
 4. When the Npcap installer opens, accept its licence and keep its default options (do **not** tick "Restrict Npcap driver's access to Administrators only"). Finish it.
 5. Finish the Wireshark installer. Restart if it asks.
 
-Check it in PowerShell:
+Check it in PowerShell (`tshark.exe` is a Windows program, so it does not run in the Ubuntu terminal):
 
 ```powershell
 & "C:\Program Files\Wireshark\tshark.exe" -D

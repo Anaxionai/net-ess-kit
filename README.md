@@ -6,7 +6,7 @@ Your task briefs link to files in this kit.
 
 ## Get the kit
 
-Run this once, in the **Ubuntu (WSL) terminal**, in week 1 (Launchpad task 11, when you finish the laptop):
+Run this once, in the **Ubuntu (WSL) terminal**, in week 1 (Launchpad task 11, part 1 of finishing the laptop):
 
 ```bash
 git clone https://github.com/Anaxionai/net-ess-kit.git ~/net-ess-kit
