@@ -1,0 +1,3 @@
+# containerlab's lab folders, and WireGuard keys: never commit them
+clab-*/
+secrets/

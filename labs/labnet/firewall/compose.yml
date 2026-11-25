@@ -1,0 +1,63 @@
+# The P1 firewall lab: one server with nftables ready, and two clients to test it from.
+#   labnet-fw      172.28.30.10   listens on TCP 22, 80, 8080 and 5432; you write its firewall
+#   labnet-office  172.28.30.20   an office computer
+#   labnet-guest   172.28.30.30   a guest's laptop
+# This folder is /lab inside all three, so your nftables.conf and test-ports.sh are there.
+#
+# Start it from this folder, in the Ubuntu terminal:   docker compose up -d
+# Stop it:                                            docker compose down
+name: labnet-firewall
+
+services:
+  fw:
+    build: ../images/tools
+    container_name: labnet-fw
+    hostname: labnet-fw
+    cap_add:
+      - NET_ADMIN          # lets nft change this container's firewall
+    volumes:
+      - ./:/lab
+    networks:
+      fwnet:
+        ipv4_address: 172.28.30.10
+    # Four stand-in services. Each answers with one line, so a test can see it is open.
+    command:
+      - sh
+      - -c
+      - |
+        socat TCP-LISTEN:22,fork,reuseaddr SYSTEM:'echo SSH-2.0-labnet-fw-standin' &
+        socat TCP-LISTEN:80,fork,reuseaddr SYSTEM:'printf "HTTP/1.0 200 OK\r\n\r\nlabnet-fw web page\n"' &
+        socat TCP-LISTEN:8080,fork,reuseaddr SYSTEM:'printf "HTTP/1.0 200 OK\r\n\r\nlabnet-fw admin page\n"' &
+        socat TCP-LISTEN:5432,fork,reuseaddr SYSTEM:'echo labnet-fw database stand-in' &
+        echo "labnet-fw listening on 22, 80, 8080 and 5432"
+        exec sleep infinity
+
+  office:
+    build: ../images/tools
+    container_name: labnet-office
+    hostname: labnet-office
+    volumes:
+      - ./:/lab
+    networks:
+      fwnet:
+        ipv4_address: 172.28.30.20
+    depends_on:
+      - fw
+
+  guest:
+    build: ../images/tools
+    container_name: labnet-guest
+    hostname: labnet-guest
+    volumes:
+      - ./:/lab
+    networks:
+      fwnet:
+        ipv4_address: 172.28.30.30
+    depends_on:
+      - fw
+
+networks:
+  fwnet:
+    ipam:
+      config:
+        - subnet: 172.28.30.0/24

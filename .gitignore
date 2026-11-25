@@ -1,0 +1,31 @@
+# Packet captures: big, and they can hold other people's traffic. Commit text summaries instead.
+*.pcap
+*.pcapng
+
+# containerlab writes a lab folder next to each topology when you deploy it
+clab-*/
+.*.clab.yml.bak
+*.clab.yml.bak
+
+# OpenTofu: provider downloads, state and plans. State can hold secrets.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+*.tfvars
+!*.tfvars.example
+
+# Private keys and secrets: never commit them
+*.key
+*.pem
+privatekey
+*.privatekey
+*_private
+wg*.conf.local
+.env
+.aws/
+
+# Made by editors and tools
+__pycache__/
+.venv/

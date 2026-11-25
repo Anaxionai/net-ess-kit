@@ -1,0 +1,13 @@
+{
+  "BudgetName": "cloudnet-5usd",
+  "BudgetType": "COST",
+  "TimeUnit": "MONTHLY",
+  "BudgetLimit": {
+    "Amount": "5",
+    "Unit": "USD"
+  },
+  "CostTypes": {
+    "IncludeCredit": false,
+    "IncludeRefund": false
+  }
+}

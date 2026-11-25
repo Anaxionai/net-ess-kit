@@ -1,0 +1,44 @@
+# Broken lab 4. The ticket is in README.md. Find the fault from the running lab.
+# In the Containerlab terminal, from this folder:
+#   containerlab deploy -t lab4.clab.yml --reconfigure
+#   containerlab destroy -t lab4.clab.yml --cleanup
+name: broken4
+
+topology:
+  kinds:
+    frr:
+      image: officelab-router
+    linux:
+      image: wbitt/network-multitool:extra
+  nodes:
+    r1:
+      kind: frr
+      daemons: [ospfd]
+      startup-config: |
+        hostname r1
+        interface eth1
+         ip address 10.9.1.1/24
+        exit
+        interface eth2
+         ip address 10.9.2.1/24
+        exit
+      exec:
+        - nft add table inet filter
+        - nft add chain inet filter forward { type filter hook forward priority filter ; policy drop ; }
+        - nft add rule inet filter forward ct state established,related accept
+        - nft add rule inet filter forward icmp type echo-request accept
+        - nft add rule inet filter forward iifname eth1 ip daddr 10.9.2.10 tcp dport 8080 accept
+    pc1:
+      kind: linux
+      exec:
+        - ip addr add 10.9.1.10/24 dev eth1
+        - ip route replace default via 10.9.1.1
+    srv1:
+      kind: linux
+      exec:
+        - ip addr add 10.9.2.10/24 dev eth1
+        - ip route replace default via 10.9.2.1
+
+  links:
+    - endpoints: ["pc1:eth1", "r1:eth1"]
+    - endpoints: ["r1:eth2", "srv1:eth1"]

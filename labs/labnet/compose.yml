@@ -1,0 +1,50 @@
+# LabNet: three containers on two user-defined Docker networks (P1).
+# Read README.md for the design. Start it from this folder, in the Ubuntu terminal:
+#   docker compose up -d --build
+# Stop it:
+#   docker compose down
+name: labnet
+
+services:
+  web:
+    build: ./images/web
+    container_name: labnet-web
+    volumes:
+      - ./web/caddy.conf:/etc/caddy/Caddyfile:ro
+      - ./web/site:/srv:ro
+    ports:
+      - "8080:80"
+    networks:
+      - frontend
+      - backend
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - api
+
+  api:
+    build: ./images/api
+    container_name: labnet-api
+    networks:
+      - frontend
+      - backend
+    cap_add:
+      - NET_ADMIN
+    depends_on:
+      - db
+
+  db:
+    build: ./images/db
+    container_name: labnet-db
+    environment:
+      POSTGRES_PASSWORD: labnet-lab-only   # a lab-only password: never reuse it anywhere real
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+    cap_add:
+      - NET_ADMIN
+
+networks:
+  frontend:
+  backend:
